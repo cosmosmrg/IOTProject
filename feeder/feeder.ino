@@ -12,19 +12,16 @@
 #include  "virtuabotixRTC.h"
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
-#include <OneWire.h> 
+#include <OneWire.h>
 #include <DallasTemperature.h>
 
 Servo myservo;  
 #define ONE_WIRE_BUS 2 
 #define SERVO_BUS 9
-#define b1_pin 10
-#define b2_pin 11
 int eeAddress = 0;
 String storeDate = "";
-//int size =  
-int previousState_plus = HIGH;
-int previsosState_reset = HIGH;
+//int previousState_plus = HIGH;
+//int previsosState_reset = HIGH;
 int pos = 0;    // variable to store the servo position
 LiquidCrystal_I2C lcd(0x3f,20,4);
 OneWire oneWire(ONE_WIRE_BUS); 
@@ -36,8 +33,6 @@ void setup()
   myservo.attach(SERVO_BUS);  // attaches the servo on pin 9 to the servo object
   myRTC.updateTime();
   Serial.begin(9600);
-  pinMode(b1_pin,INPUT_PULLUP);
-  pinMode(b2_pin,INPUT_PULLUP);
   lcd.init();                      // initialize the lcd 
   lcd.init();
   // Print a message to the LCD.
@@ -50,17 +45,17 @@ void setup()
   lcd.print("c");
   lcd.setCursor(0,1);
   lcd.print("Last fed:");
-  storeDate = getLastFed();
-  if (storeDate == ""){
-    storeDate = "--:--"
-  }
-  lcd.setCursor(9,1);
-  lcd.print(storeDate);
-//  lcd.print("--");
-//  lcd.setCursor(11,1);
-//  lcd.print(":");
-//  lcd.setCursor(12,1);
-//  lcd.print("--");
+//  storeDate = getLastFed();
+//  if (storeDate == ""){
+//    storeDate = "--:--";
+//  }
+//  lcd.setCursor(9,1);
+//  lcd.print(storeDate);
+  lcd.print("--");
+  lcd.setCursor(11,1);
+  lcd.print(":");
+  lcd.setCursor(12,1);
+  lcd.print("--");
   
   // Start up the library 
   sensors.begin(); 
@@ -79,14 +74,19 @@ boolean needfeed(){
 
 void feed(String feeedtime){
   lcd.setCursor(9,1);
-  lcd.print(feedtime);
-//  int hour = myRTC.hours;
-//  if (hour < 10) lcd.print("0"+String(myRTC.hours));
-//  else lcd.print(String(myRTC.hours));
-//  lcd.setCursor(12,1);
-//  int minutes = myRTC.minutes;
-//  if (minutes < 10) lcd.print("0"+String(myRTC.minutes));
-//  else lcd.print(myRTC.minutes);
+//  lcd.print(feeedtime);
+int hour = myRTC.hours;
+  if (hour < 10) date+=("0"+String(myRTC.hours));
+  else date+=(String(myRTC.hours));
+
+    
+  int hour = myRTC.hours;
+  if (hour < 10) lcd.print("0"+String(myRTC.hours));
+  else lcd.print(String(myRTC.hours));
+  lcd.setCursor(12,1);
+  int minutes = myRTC.minutes;
+  if (minutes < 10) lcd.print("0"+String(myRTC.minutes));
+  else lcd.print(myRTC.minutes);
 
   for (pos = 0; pos <= 90; pos += 1) { // goes from 0 degrees to 180 degrees
     // in steps of 1 degree
@@ -107,28 +107,23 @@ void showTemp(){
 
 void loop()
 {
-  int currentState_plus = digitalRead(b1_pin); // press = 0
-  int currentState_reset = digitalRead(b2_pin);
-  if(needfeed()){
+  if(needfeed()){ // only ask time when need to feed
    
-    String date = "";
+//    String date = "";
     int hour = myRTC.hours;
     if (hour < 10) date+=("0"+String(myRTC.hours));
     else date+=(String(myRTC.hours));
-    date+=":";
-    int minutes = myRTC.minutes;
-    if (minutes < 10) date+=("0"+String(myRTC.minutes));
-    else date+=(myRTC.minutes);
+//    date+=":";
+//    int minutes = myRTC.minutes;
+//    if (minutes < 10) date+=("0"+String(myRTC.minutes));
+//    else date+=(myRTC.minutes);
+//      
+//    EEPROM.put(eeAddress, date);
+//    Serial.println(date); 
     
-    if(currentState_plus== HIGH && previousState_plus == LOW) {
-    EEPROM.put(eeAddress, date);
-    Serial.println(date);
-    } 
-    feed(date);
+    feed();
   }
   showTemp();
-  previousState_plus = currentState_plus;
-  previousState_reset = currentState_reset;
 }
 
 String getLastFed(){
